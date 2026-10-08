@@ -1,5 +1,7 @@
 # AIRBOT Keyboard Visual Grasp Demo
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 This is a keyboard-controlled, single-arm visual grasping demo running entirely in DISCOVERSE simulation. It detects blue and green blocks, confirms the target, segments it with MobileSAM, estimates a grasp pose, and performs a simulated pick-and-place sequence.
 
 No physical robot, camera, microphone, or speech-recognition service is used by this demo.
