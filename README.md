@@ -1,31 +1,20 @@
-# AIRBOT Keyboard Visual Grasp Demo
+# AIRBOT Visual Grasp and Keyboard Control Demo
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-This is a keyboard-controlled, single-arm visual grasping demo running entirely in DISCOVERSE simulation. It detects blue and green blocks, confirms the target, segments it with MobileSAM, estimates a grasp pose, and performs a simulated pick-and-place sequence.
+Single-arm visual grasping with keyboard commands: standalone DISCOVERSE simulation, physical AIRBOT Play grasping, and a read-only simulation mirror of robot feedback. The pipeline includes YOLO detection, blue/green target confirmation, MobileSAM segmentation, grasp-pose estimation, and pick-and-place execution.
 
-No physical robot or physical camera is used by this demo.
+## Modes
 
-## Demo capabilities
+| Mode | Entry point | Hardware |
+| --- | --- | --- |
+| Standalone simulation | `./run_keyboard.sh` | None |
+| Physical robot | `./run_keyboard_robot.sh` | Real camera and AIRBOT Play |
+| Robot with feedback mirror | `./run_keyboard_robot.sh --with-sim` | Real robot; simulation displays feedback |
 
-| Component | Function |
-| --- | --- |
-| DISCOVERSE and MuJoCo | AIRBOT Play scene, physics, and motion execution |
-| YOLO | Block detection and color-aware target confirmation |
-| MobileSAM | Target segmentation |
-| SimpleGrasp | Metric grasp-pose estimation from the simulated wrist-camera RGB-D frame |
-| Keyboard panel | Whitelisted Chinese text commands for the simulation |
+## Simulation Quick Start
 
-## Requirements
-
-- Ubuntu 22.04
-- Python 3.10 recommended; Python 3.10, 3.11, and 3.12 are supported by the installer
-- An NVIDIA-capable graphics environment for the interactive MuJoCo window
-- Network access during installation to fetch the pinned DISCOVERSE revision and Python dependencies
-
-The keyboard simulation itself has no AIRBOT SDK or `airbot-arm` service requirement. Its 5.2.2 compatibility context applies only to the separate physical-robot workflow, which is not part of this demo.
-
-## Quick start
+Recommended environment: Ubuntu 22.04 and Python 3.10. The keyboard installer supports Python 3.10, 3.11, and 3.12.
 
 ```bash
 git clone https://github.com/DISCOVER-Robotics/AIRBOT-Keyboard-Visual-Grasp-Demo.git
@@ -34,36 +23,81 @@ cd AIRBOT-Keyboard-Visual-Grasp-Demo
 ./run_keyboard.sh
 ```
 
-The installer creates `venv-keyboard`, checks the selected Python version, and fetches the pinned DISCOVERSE revision. Set `GRASP_KEYBOARD_PYTHON` to use an existing interpreter, or set `PYTHON_BIN` before installation.
+The installer creates `venv-keyboard` and fetches the pinned DISCOVERSE revision. Set `GRASP_KEYBOARD_PYTHON` to reuse an existing interpreter, using the same path for installation and launch. This mode does not connect to a physical robot.
 
-The window shows a third-person scene above an end-effector camera view. Select a target or enter one of the following commands, then press Enter:
+The window shows a third-person scene and a wrist-camera view. Select a target or enter a command in the right-side panel, then press Enter or click Execute. Reset the scene after pick-and-place when needed.
+
+## Physical Robot Setup
+
+The physical workflow uses **arm-sdk 5.2.2 and airbot-arm 5.2.2**. Place vendor packages matching Ubuntu 22.04 and your Python/platform in `packages/`:
+
+```text
+arm_sdk-5.2.2-py3-none-any.whl
+airbot-arm_5.2.2_amd64.deb
+```
+
+Vendor binaries are not included. Alternative package paths are described in [packages/README.md](packages/README.md).
+
+```bash
+./install.sh
+./run_keyboard_robot.sh --check
+```
+
+`--check` checks dependencies without connecting to devices. Start the `airbot-arm` service separately with the correct hardware configuration before launching the GUI.
+
+**Starting the physical GUI automatically moves the robot to the configured observation pose.** Confirm calibration, observation/placement poses, workspace clearance, gripper settings, and emergency-stop access before startup. Committed configuration values are workstation-specific, not universally safe defaults.
+
+```bash
+./run_keyboard_robot.sh
+```
+
+Use the keyboard-grasp tab to enter commands. `./run_grasp.sh` launches the same physical keyboard interface. Manual image selection and control-connection recovery remain available.
+
+## Commands
 
 | Command | Action |
 | --- | --- |
-| `抓取蓝色积木` | Detect, validate, and move the blue block to the placement area |
-| `抓取绿色积木` | Detect, validate, and move the green block to the placement area |
-| `打开夹爪` | Open the simulated gripper |
-| `闭合夹爪` | Close the simulated gripper |
-| `回到观察位` | Move to the configured observation pose |
-| `拍照` | Clear the selection and capture a fresh view |
-| `预测位姿` | Estimate a grasp pose without moving the arm |
+| `抓取蓝色积木` / `抓取绿色积木` | Confirm and grasp the requested block color |
+| `打开夹爪` | Open the gripper |
+| `闭合夹爪` / `关闭夹爪` | Close the gripper |
+| `回到观察位` | Move to the observation pose |
+| `拍照` | Capture a fresh view |
+| `预测位姿` | Estimate the grasp pose without executing a grasp |
+| `开始抓取` | Grasp the prepared target |
 
-## Repository layout
+Commands are subject to target confirmation and busy-state checks. Enter and the confirmation button use the same dispatch path.
 
-```text
-app/                           Simulation, vision, and command sources
-configs/                       Detection and simulation parameters
-checkpoint/                    Versioned YOLO, MobileSAM, and FastSAM weights
-install_keyboard.sh            Keyboard-only environment installer
-run_keyboard.sh                Keyboard-only simulation launcher
-requirements-sim-keyboard.txt  Pinned keyboard-demo dependencies
-tests/                         Offline tests
+## Feedback Mirror
+
+Install optional simulation dependencies in the physical workflow's environment:
+
+```bash
+./install_sim.sh
+./run_keyboard_robot.sh --with-sim
 ```
 
-## Safety and scope
+The mirror is read-only; the physical GUI still controls the robot. `./run_sim.sh` launches standalone keyboard simulation in the shared environment.
 
-`run_keyboard.sh` launches only the keyboard interface and does not include a physical-robot control entrypoint. This repository is intended for simulation demonstration and development only; it must not be used to command a physical robot.
+To reuse an existing environment, set `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/python` for the physical launcher. Set `GRASP_SIM_PYTHON` when installing simulation dependencies into that environment.
 
-## License and upstream components
+## Configuration and Safety
 
-DISCOVERSE is fetched from the pinned upstream revision specified in `install_keyboard.sh`. Review the licenses of DISCOVERSE, YOLO/Ultralytics, MobileSAM, MuJoCo, and every model before redistributing or using this demo commercially.
+- `configs/config_file.yaml` selects `configs/sam_simplegrasp.yaml` for the physical workflow.
+- `configs/sam_simplegrasp.yaml` contains models, calibration, connection settings, observation/placement poses, and motion protections. Recalibrate for your workstation.
+- `configs/live_mirror.yaml` controls the feedback mirror.
+- Use RealSense or configure and calibrate USB RGB mode. RGB mode assumes a fixed camera and measured table plane.
+- Keyboard commands are not a hardware emergency stop. Keep people and obstacles outside the robot workspace.
+
+## Repository Layout
+
+```text
+app/              Vision, calibration, robot control, keyboard UI, simulation
+configs/          Physical and simulation configurations
+checkpoint/       YOLO and segmentation weights
+packages/         Vendor package instructions; binaries supplied separately
+tests/            Offline regression tests
+```
+
+## Upstream Components
+
+DISCOVERSE is fetched at the revision specified in the installers. Review the licenses of DISCOVERSE, YOLO/Ultralytics, MobileSAM, MuJoCo, vendor packages, and all models before redistribution or commercial use.
