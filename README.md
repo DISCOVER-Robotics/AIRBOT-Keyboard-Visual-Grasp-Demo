@@ -47,22 +47,9 @@ Vendor binaries are not included. Alternative package paths are described in [pa
 
 ### Terminal A: Start the Robot Service
 
-For a local AIRBOT Play with a G2 gripper on `can0`, run:
+Follow the [official robot service startup guide](https://docs.discover-robotics.com/document/airbot-play/sdk/quickstart/run-service.html) to start `airbot-arm`. Refer to that guide for commands, CAN interface selection, hardware types, and service options.
 
-```bash
-sudo airbot-arm -i can0 -t airbot_play_g2 \
-  --address 127.0.0.1:50051 --no-return
-```
-
-Keep this terminal running. Replace `can0` with your actual CAN interface. Use `airbot_play_g2` for G2, `airbot_play_g2l` for G2L, or `airbot_play` without a gripper. The type and port must match your hardware and `ArmParams.server_arm_type` / `ArmParams.port` in `configs/sam_simplegrasp.yaml`. This example binds the service to the local machine only.
-
-`--no-return` prevents automatic return to zero when the service stops. Do not start a second service if one is already running with the correct configuration. In another terminal, check that the port is listening:
-
-```bash
-ss -ltnp | grep ':50051'
-```
-
-A listening port alone does not verify robot readiness; also check the service startup logs. See the [official service guide](https://docs.discover-robotics.com/document/airbot-play/sdk/quickstart/run-service.html).
+Match the service settings to `ArmParams` in `configs/sam_simplegrasp.yaml`. Keep the service running before launching the physical demo in Terminal B.
 
 ### Terminal B: Launch the Physical Demo
 
@@ -101,7 +88,7 @@ Install optional simulation dependencies in the physical workflow's environment:
 
 The mirror is read-only; the physical GUI still controls the robot. `./run_sim.sh` launches standalone keyboard simulation in the shared environment.
 
-The physical feedback-mirror mode also requires the service in Terminal A to remain running. After closing the physical GUI and mirror, stop the service with Ctrl+C in Terminal A; keep `--no-return` to avoid automatic return-to-zero on shutdown.
+The physical feedback-mirror mode also requires the service in Terminal A to remain running. Close the physical GUI and mirror before stopping the service; refer to the official guide for shutdown behavior and options.
 
 To reuse an existing environment, set `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/python` for the physical launcher. Set `GRASP_SIM_PYTHON` when installing simulation dependencies into that environment.
 

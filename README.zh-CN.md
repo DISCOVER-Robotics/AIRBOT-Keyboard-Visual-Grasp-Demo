@@ -47,22 +47,9 @@ airbot-arm_5.2.2_amd64.deb
 
 ### 终端 A：启动机械臂服务
 
-本机 AIRBOT Play 使用 G2 夹爪、CAN 接口为 `can0` 时，运行：
+请按照[官网机械臂服务启动教程](https://docs.discover-robotics.com/document/airbot-play/sdk/quickstart/run-service.html)启动 `airbot-arm`。具体启动命令、CAN 接口选择、硬件类型和服务参数请参阅官网。
 
-```bash
-sudo airbot-arm -i can0 -t airbot_play_g2 \
-  --address 127.0.0.1:50051 --no-return
-```
-
-保持此终端运行。将 `can0` 替换为实际 CAN 接口。G2 使用 `airbot_play_g2`，G2L 使用 `airbot_play_g2l`，不带夹爪使用 `airbot_play`。硬件类型和端口必须与实物及 `configs/sam_simplegrasp.yaml` 中的 `ArmParams.server_arm_type`、`ArmParams.port` 一致。此示例仅允许本机连接服务。
-
-`--no-return` 表示停止服务时不自动回零。若已有配置正确的服务正在运行，不要重复启动。可在另一终端检查监听端口：
-
-```bash
-ss -ltnp | grep ':50051'
-```
-
-端口监听不代表机械臂已经就绪，还需检查服务启动日志。详见[官方服务启动教程](https://docs.discover-robotics.com/document/airbot-play/sdk/quickstart/run-service.html)。
+服务设置需与 `configs/sam_simplegrasp.yaml` 中的 `ArmParams` 一致。保持服务运行，再在终端 B 启动真机 Demo。
 
 ### 终端 B：启动真机 Demo
 
@@ -101,7 +88,7 @@ ss -ltnp | grep ':50051'
 
 镜像为只读反馈窗口，机械臂仍由真机 GUI 控制。`./run_sim.sh` 在该共享环境中启动独立键盘仿真。
 
-真机反馈镜像模式同样需要保持终端 A 的服务运行。关闭真机 GUI 和镜像后，在终端 A 按 Ctrl+C 停止服务；保留 `--no-return`，避免退出服务时自动回零。
+真机反馈镜像模式同样需要保持终端 A 的服务运行。先关闭真机 GUI 和镜像，再停止服务；停止服务的行为及相关参数请参阅官网教程。
 
 通过 `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/python` 可复用已有真机环境；向该环境安装仿真依赖时设置 `GRASP_SIM_PYTHON`。
 
