@@ -10,4 +10,4 @@ fi
 
 cd "$PROJECT_DIR"
 export PYTHONPATH="$PROJECT_DIR/app${PYTHONPATH:+:$PYTHONPATH}"
-exec "$PYTHON" app/discoverse_voice.py --no-voice "$@"
+exec "$PYTHON" app/discoverse_voice.py "$@"

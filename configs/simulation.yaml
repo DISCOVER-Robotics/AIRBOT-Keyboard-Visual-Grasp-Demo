@@ -1,0 +1,95 @@
+# Configuration for the keyboard-only DISCOVERSE demonstration.
+RunTime:
+  dump: false
+  dump_path: runtime
+
+AirbotSegment:
+  device: cpu
+  model_name: MobileSAM
+  MobileSAM:
+    model_type: vit_t
+    checkpoint:
+      vit_t: checkpoint/mobile_sam.pt
+
+AirbotGrasp:
+  grasp_offset_base_xy_m: [0.0, 0.0]
+  grasp_offset_camera_xy_m: [0.0, 0.0]
+  position_offset:
+    enabled: false
+  block_size_m: 0.04
+  camera_type: SimCamera
+  safe_height_bias: 0.028
+  min_grasp_z: 0.028
+  grasp_depth: 0.04
+  observe_pose:
+    - [0.227, 0.0, 0.279]
+    - [0.0, 0.0, 0.0, 1.0]
+  place_pose:
+    - [0.25, 0.25, 0.022]
+    - [0.0, 0.0, 0.0, 1.0]
+  pre_place_pose:
+    - [0.25, 0.25, 0.122]
+    - [0.0, 0.0, 0.0, 1.0]
+
+Camera:
+  type: simulation
+  calibration_type: SimCamera
+
+SimCamera:
+  resolution: simulated
+  simulated:
+    intrinsic: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+    extrinsic: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
+
+AirbotYolo:
+  checkpoint: checkpoint/yolo_blocks_v1.pt
+  verbose: false
+
+RealtimeDetection:
+  candidate_labels: [block, cube]
+  confidence: 0.25
+  imgsz: 1280
+  nms_iou: 0.75
+  max_det: 20
+  min_box_area: 400
+  inference_hz: 10
+  freshness_seconds: 1.0
+  preparation_timeout_seconds: 8.0
+  inset_ratio: 0.10
+  min_saturation: 70
+  min_value: 45
+  min_color_coverage: 0.18
+  min_color_margin: 0.06
+  min_mask_in_box_ratio: 0.50
+  min_target_mask_clearance_mm: 5.0
+  tracking_iou_threshold: 0.30
+  tracking_confirm_frames: 3
+  tracking_max_missed_frames: 3
+  tracking_smoothing_alpha: 0.35
+  tracking_color_window: 5
+  tracking_color_confirm_frames: 2
+  colors:
+    blue:
+      lower: [90, 70, 45]
+      upper: [135, 255, 255]
+    green:
+      lower: [35, 70, 45]
+      upper: [85, 255, 255]
+
+ArmParams:
+  base_height: 0.0
+  gripper_width: 0.072
+  gripper_length: 0.01
+  gripper_grasp_compression: 0.003
+  gripper_grasp_effort: 6.0
+  gripper_grasp_retry_step: 0.003
+  gripper_grasp_retry_count: 2
+  gripper_grasp_min_width: 0.005
+  gripper_open_clearance: 0.03
+  gripper_min_open_width: 0.055
+  gripper_contact_effort: 1.0
+  gripper_contact_velocity: 0.002
+  gripper_contact_confirm_samples: 3
+  gripper_feedback_poll_interval: 0.05
+  gripper_grasp_timeout_ms: 2500

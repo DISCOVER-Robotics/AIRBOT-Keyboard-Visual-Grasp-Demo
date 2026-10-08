@@ -60,7 +60,7 @@ tests/                         Offline tests
 
 ## Safety and scope
 
-`run_keyboard.sh` always passes `--no-voice` and does not import the physical-robot control entrypoint. This repository is intended for simulation demonstration and development only; it must not be used to command a physical robot.
+`run_keyboard.sh` launches only the keyboard interface and does not include a physical-robot control entrypoint. This repository is intended for simulation demonstration and development only; it must not be used to command a physical robot.
 
 ## License and upstream components
 

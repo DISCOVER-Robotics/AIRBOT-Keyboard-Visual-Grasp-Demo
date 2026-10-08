@@ -10,7 +10,7 @@ from voice_commands import execute_command
 AVAILABLE = all(importlib.util.find_spec(name) is not None for name in ('discoverse', 'mujoco'))
 
 
-@unittest.skipUnless(AVAILABLE, 'run ./install_sim.sh to install simulation dependencies')
+@unittest.skipUnless(AVAILABLE, 'run ./install_keyboard.sh to install simulation dependencies')
 class SimulationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

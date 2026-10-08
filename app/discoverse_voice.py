@@ -9,7 +9,7 @@ from voice_commands import execute_command
 
 
 class SimulationCommands:
-    """The same callback contract used by the real robot's voice panel."""
+    """Callback contract used by the keyboard command panel."""
     def voice_is_busy(self):
         return self.sim.busy
 
@@ -37,20 +37,17 @@ class SimulationCommands:
         self.sim.go_observe()
 
 
-def make_window(sim, no_voice=False):
+def make_window(sim):
     from PyQt6.QtCore import Qt, QTimer
     from PyQt6.QtGui import QImage, QPixmap
     from PyQt6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout,
                                 QPushButton, QComboBox, QTextEdit, QLineEdit)
-    from voice_panel import VoiceCommandPanel
 
     class SimulationWindow(QWidget, SimulationCommands):
         def __init__(self):
             super().__init__()
             self.sim = sim
-            self.setWindowTitle(
-                'DISCOVERSE · AIRBOT 键盘抓取仿真' if no_voice else
-                'DISCOVERSE · AIRBOT 语音抓取仿真')
+            self.setWindowTitle('DISCOVERSE · AIRBOT 键盘抓取仿真')
             layout = QHBoxLayout(self)
             left, right = QVBoxLayout(), QVBoxLayout()
             layout.addLayout(left)
@@ -95,19 +92,13 @@ def make_window(sim, no_voice=False):
                 self.log('YOLO 权重：' + str(sim.vision.detector.checkpoint))
             else:
                 self.log('物理调试模式：使用场景真值定位，未启用 YOLO。')
-            self.voice = None
-            self.text = None
-            if no_voice:
-                self.text = QLineEdit()
-                self.text.setPlaceholderText('输入：抓取蓝色积木')
-                self.execute_button = QPushButton('执行文字指令')
-                self.execute_button.clicked.connect(self.execute_text)
-                self.text.returnPressed.connect(self.execute_text)
-                right.addWidget(self.text)
-                right.addWidget(self.execute_button)
-            else:
-                self.voice = VoiceCommandPanel(self)
-                right.addWidget(self.voice)
+            self.text = QLineEdit()
+            self.text.setPlaceholderText('输入：抓取蓝色积木')
+            self.execute_button = QPushButton('执行文字指令')
+            self.execute_button.clicked.connect(self.execute_text)
+            self.text.returnPressed.connect(self.execute_text)
+            right.addWidget(self.text)
+            right.addWidget(self.execute_button)
             right.addWidget(QLabel('最近一次分割 / 位姿计算快照'))
             self.preparation_image = QLabel()
             self.preparation_image.setFixedSize(240, 180)
@@ -197,9 +188,8 @@ def make_window(sim, no_voice=False):
                     if not self.sim.events or self.sim.events[-1] != self.sim.message:
                         self.log(self.sim.message)
                     self.last_message = self.sim.message
-                listening = self.voice is not None and self.voice.listening
-                self.targets.setEnabled(not self.sim.busy and not listening)
-                self.reset_button.setEnabled(not self.sim.busy and not listening)
+                self.targets.setEnabled(not self.sim.busy)
+                self.reset_button.setEnabled(not self.sim.busy)
                 if self.sim.selected is None and self.targets.currentIndex() != 0:
                     self.targets.setCurrentIndex(0)
             except Exception as exc:
@@ -207,15 +197,10 @@ def make_window(sim, no_voice=False):
                 self.log('仿真停止：' + str(exc))
                 self.targets.setEnabled(False)
                 self.reset_button.setEnabled(False)
-                if self.voice:
-                    self.voice.setEnabled(False)
-                if self.text:
-                    self.execute_button.setEnabled(False)
+                self.execute_button.setEnabled(False)
 
         def closeEvent(self, event):
             self.timer.stop()
-            if self.voice:
-                self.voice.shutdown()
             self.sim.close()
             event.accept()
 
@@ -226,7 +211,6 @@ def main():
     parser = argparse.ArgumentParser(description='DISCOVERSE 视觉抓取仿真，不连接真实机械臂')
     parser.add_argument('--headless', action='store_true', help='无窗口运行，不加载语音模型')
     parser.add_argument('--text', help='启动后执行一条白名单口令')
-    parser.add_argument('--no-voice', action='store_true', help='仅文字面板，不预加载 ASR')
     parser.add_argument('--yolo-checkpoint', help='自定义 YOLO .pt 权重，默认沿用现有配置')
     parser.add_argument('--ground-truth', action='store_true', help='仅物理调试：显式禁用 YOLO，使用场景真值定位')
     parser.add_argument('--device', help='麦克风编号或名称，默认系统输入设备')
@@ -262,7 +246,7 @@ def main():
         if not args.ground_truth:
             from discoverse_vision import SimulationVision
             sim.vision = SimulationVision(sim, args.yolo_checkpoint)
-        window = make_window(sim, args.no_voice)
+        window = make_window(sim)
         window.show()
         if args.text:
             # A startup grasp must wait for confirmed detections, not bypass YOLO.
