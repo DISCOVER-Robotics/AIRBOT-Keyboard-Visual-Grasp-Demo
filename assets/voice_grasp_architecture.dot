@@ -1,0 +1,46 @@
+digraph Architecture {
+  graph [label="AIRBOT 语音视觉抓取 · 真机与 DISCOVERSE", labelloc=t, fontsize=23,
+    fontname="Noto Sans CJK SC", bgcolor="#f8fafc", pad=.3, nodesep=.35, ranksep=.5, rankdir=TB];
+  node [shape=box, style="rounded,filled", fillcolor=white, color="#94a3b8",
+    fontname="Noto Sans CJK SC", fontsize=12, margin=".18,.12"];
+  edge [color="#64748b", arrowsize=.7, fontname="Noto Sans CJK SC", fontsize=10];
+  input [label="操作员：语音 / 文字 / 手动选择\n确认后执行；仅预测不触发抓取", fillcolor="#fef3c7"];
+  speech [label="共享语音入口\nvoice_panel + voice_commands\nFunASR 独立进程 → JSON → 白名单与确认", fillcolor="#ede9fe"];
+  input -> speech;
+  subgraph cluster_real {
+    label="真机主进程  ·  ./run_grasp.sh"; fontname="Noto Sans CJK SC"; color="#60a5fa"; style=rounded;
+    gui [label="AirbotControlInterface / PyQt6\n目标时效 · 唯一性 · 忙碌互斥"];
+    camera [label="ObserveThread + AirbotMonitor（只读）\nRealSense 对齐 RGB-D + SDK 位姿快照\n实际深度单位 · 畸变射线校正"];
+    detect [label="DetectionThread\nYOLO → HSV 蓝绿 → 去重与连续帧确认"];
+    prepare [label="ColorGraspPreparationThread\n分割 / 几何拟合 / 目标轮廓余量检查"];
+    motion [label="RobotGraspThread → AirbotArm\n单一控制租约 · 张爪反馈 · 起点核验\n预抓取 → 慢速直线下降 → 夹持 → 抬升放置"];
+    hw [label="arm-sdk 5.2.2 → airbot-arm → CAN\n真实 AIRBOT Play / 夹爪", fillcolor="#fee2e2"];
+    gui -> prepare; camera -> detect; detect -> prepare; prepare -> motion; motion -> hw;
+  }
+  subgraph cluster_shared {
+    label="共享视觉与几何模块"; fontname="Noto Sans CJK SC"; color="#34d399"; style=rounded;
+    pipeline [label="grasp_preparation → MobileSAM → SimpleGrasp\n相机点云 → 相机到末端 → 末端到基座\nblock_geometry：已知立方体可见表面拟合\n中心 / 边方向 / 宽度 / 拟合质量", fillcolor="#ecfdf5"];
+    config [label="YAML / 模型权重 / 运行诊断\nyolo_blocks_v1.pt · mobile_sam.pt\n真机立方体 25 mm；独立仿真 40 mm"];
+    config -> pipeline;
+  }
+  subgraph cluster_sim {
+    label="独立物理仿真  ·  ./run_sim.sh"; fontname="Noto Sans CJK SC"; color="#a78bfa"; style=rounded;
+    sim_gui [label="discoverse_voice / discoverse_vision\n末端 eye_arm RGB-D → YOLO / HSV\n共享分割与抓取准备"];
+    physics [label="discoverse_sim · DISCOVERSE / MuJoCo\nIK 与关节控制 · 碰撞 / 摩擦 / 接触抓放\n使用仿真相机外参；不连接真机"];
+    sim_view [label="仿真窗口\n上：第三视角\n下：末端第一视角 + 检测"];
+    sim_gui -> physics; physics -> sim_view;
+  }
+  subgraph cluster_mirror {
+    label="可选反馈镜像  ·  --with-sim"; fontname="Noto Sans CJK SC"; color="#fb923c"; style=rounded;
+    publisher [label="live_mirror · 单个后台估计任务\n复用真机检测与 RGB-D；不重复加载模型\nworld_from_base + 关节映射 → 原子快照"];
+    mirror [label="live_mirror_window · 独立 QProcess\n回放真机关节 / 夹爪与积木测量位置\n上：第三视角；下：末端第一视角\n弱估计半透明；无效 / 过期目标隐藏", fillcolor="#fff7ed"];
+    publisher -> mirror [label="临时 snapshot.json"];
+  }
+  speech -> gui; speech -> sim_gui;
+  prepare -> pipeline [style=dashed, label="调用"];
+  sim_gui -> pipeline [style=dashed, label="调用"];
+  camera -> publisher [label="关节 / 夹爪反馈"];
+  detect -> publisher [label="RGB-D / 检测快照"];
+  note [shape=note, label="边界：镜像不持有控制权，不另行执行抓放；反馈存在延迟\n仿真与镜像均不能替代真机精度或安全验收", fillcolor="#f1f5f9"];
+  mirror -> note [style=invis]; sim_view -> note [style=invis]; hw -> note [style=invis];
+}

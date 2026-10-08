@@ -1,0 +1,13 @@
+# Simulation calibration and actuator parameters only; never used by run_grasp.sh.
+# Translation is close to the real observation pose; orientation adapted to Play IK/camera.
+observe_position: [0.227, 0.0, 0.279]
+observe_euler_xyz_degrees: [0, 45, 0]
+place_position: [0.25, 0.25, 0.022]
+# DISCOVERSE link6 origin is at the fingers, unlike the real SDK tool reference.
+# SimpleGrasp still computes z_top - gripper_length, with the same minimum-height clamp algorithm.
+gripper_length: 0.01
+# Finger pads extend 25 mm below link6; leave 3 mm clearance to the table.
+min_grasp_z: 0.028
+approach_height: 0.10
+# MuJoCo tendon position servo gains; effort is limited by real ArmParams setting.
+gripper_grasp_kp: 1000.0

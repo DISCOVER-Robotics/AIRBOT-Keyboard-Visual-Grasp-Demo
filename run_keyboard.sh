@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON="${GRASP_KEYBOARD_PYTHON:-$PROJECT_DIR/venv-keyboard/bin/python}"
+if [[ ! -x "$PYTHON" ]]; then
+    echo "找不到键盘演示环境，请先运行 ./install_keyboard.sh" >&2
+    exit 1
+fi
+
+cd "$PROJECT_DIR"
+export PYTHONPATH="$PROJECT_DIR/app${PYTHONPATH:+:$PYTHONPATH}"
+exec "$PYTHON" app/discoverse_voice.py --no-voice "$@"

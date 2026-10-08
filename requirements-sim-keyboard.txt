@@ -1,0 +1,11 @@
+# Keyboard-only DISCOVERSE demo: deliberately excludes ASR and audio packages.
+mujoco==3.13.0
+PyOpenGL>=3.1.7
+huggingface_hub
+PyQt6
+ultralytics
+pyyaml
+open3d
+scikit-learn
+timm
+git+https://github.com/ChaoningZhang/MobileSAM.git@f706ad9c4eb7f219c00d9050e46328518ffb65d2
