@@ -43,7 +43,30 @@ Vendor binaries are not included. Alternative package paths are described in [pa
 ./run_keyboard_robot.sh --check
 ```
 
-`--check` checks dependencies without connecting to devices. Start the `airbot-arm` service separately with the correct hardware configuration before launching the GUI.
+`--check` checks dependencies without connecting to devices. The launcher does not start the robot service automatically.
+
+### Terminal A: Start the Robot Service
+
+For a local AIRBOT Play with a G2 gripper on `can0`, run:
+
+```bash
+sudo airbot-arm -i can0 -t airbot_play_g2 \
+  --address 127.0.0.1:50051 --no-return
+```
+
+Keep this terminal running. Replace `can0` with your actual CAN interface. Use `airbot_play_g2` for G2, `airbot_play_g2l` for G2L, or `airbot_play` without a gripper. The type and port must match your hardware and `ArmParams.server_arm_type` / `ArmParams.port` in `configs/sam_simplegrasp.yaml`. This example binds the service to the local machine only.
+
+`--no-return` prevents automatic return to zero when the service stops. Do not start a second service if one is already running with the correct configuration. In another terminal, check that the port is listening:
+
+```bash
+ss -ltnp | grep ':50051'
+```
+
+A listening port alone does not verify robot readiness; also check the service startup logs. See the [official service guide](https://docs.discover-robotics.com/document/airbot-play/sdk/quickstart/run-service.html).
+
+### Terminal B: Launch the Physical Demo
+
+From the repository root, with Terminal A still running:
 
 **Starting the physical GUI automatically moves the robot to the configured observation pose.** Confirm calibration, observation/placement poses, workspace clearance, gripper settings, and emergency-stop access before startup. Committed configuration values are workstation-specific, not universally safe defaults.
 
@@ -77,6 +100,8 @@ Install optional simulation dependencies in the physical workflow's environment:
 ```
 
 The mirror is read-only; the physical GUI still controls the robot. `./run_sim.sh` launches standalone keyboard simulation in the shared environment.
+
+The physical feedback-mirror mode also requires the service in Terminal A to remain running. After closing the physical GUI and mirror, stop the service with Ctrl+C in Terminal A; keep `--no-return` to avoid automatic return-to-zero on shutdown.
 
 To reuse an existing environment, set `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/python` for the physical launcher. Set `GRASP_SIM_PYTHON` when installing simulation dependencies into that environment.
 
