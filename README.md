@@ -63,6 +63,16 @@ From the repository root, with Terminal A still running:
 
 Use the keyboard-grasp tab to enter commands. `./run_grasp.sh` launches the same physical keyboard interface. Manual image selection and control-connection recovery remain available.
 
+### Interface and Workspace References
+
+The original interface screenshot below illustrates camera views and pose information. It is a historical reference, not a screenshot of the current keyboard interface.
+
+![Original grasp interface and pose adjustment reference](assets/image-3.png)
+
+The original workspace illustration is shown below. Determine the actual safe working area from your robot, camera mounting, and surrounding obstacles.
+
+![Original grasp workspace illustration](assets/image.png)
+
 ## Commands
 
 | Command | Action |
@@ -93,6 +103,18 @@ The physical feedback-mirror mode also requires the service in Terminal A to rem
 To reuse an existing environment, set `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/python` for the physical launcher. Set `GRASP_SIM_PYTHON` when installing simulation dependencies into that environment.
 
 ## Configuration and Safety
+
+### Hand-Eye Calibration
+
+Recalibrate after changing the camera, mounting position, or image resolution. The original calibration capture example is shown below:
+
+![Hand-eye calibration capture example](assets/image-1.png)
+
+Write the measured intrinsics, distortion coefficients, and camera-to-end-effector transform into the matching resolution section of `configs/sam_simplegrasp.yaml`. Values in the original result screenshot are examples, not calibration values for your robot.
+
+![Original hand-eye calibration result example](assets/image-2.png)
+
+### Workstation Configuration
 
 - `configs/config_file.yaml` selects `configs/sam_simplegrasp.yaml` for the physical workflow.
 - `configs/sam_simplegrasp.yaml` contains models, calibration, connection settings, observation/placement poses, and motion protections. Recalibrate for your workstation.

@@ -63,6 +63,16 @@ airbot-arm_5.2.2_amd64.deb
 
 在 GUI 的“键盘抓取”页输入指令。`./run_grasp.sh` 启动同一真机键盘界面。手动拍照选点和恢复控制连接等功能仍保留。
 
+### 界面与工作区参考
+
+下图为原文件中的界面截图，用于参考相机画面与位姿信息。它是历史界面，不代表当前键盘版界面的实际外观。
+
+![原始抓取界面与位姿调整参考](assets/image-3.png)
+
+下图为原文件中的抓取工作区示意。实际安全范围需根据机械臂、相机安装和现场障碍物确定。
+
+![原始抓取工作区示意](assets/image.png)
+
 ## 控制指令
 
 | 指令 | 动作 |
@@ -93,6 +103,18 @@ airbot-arm_5.2.2_amd64.deb
 通过 `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/python` 可复用已有真机环境；向该环境安装仿真依赖时设置 `GRASP_SIM_PYTHON`。
 
 ## 配置与安全
+
+### 手眼标定
+
+更换相机、安装位置或图像分辨率后，应重新标定。下图为原文件中的标定采集示例：
+
+![手眼标定采集示例](assets/image-1.png)
+
+将实测内参、畸变系数和相机到末端的外参写入 `configs/sam_simplegrasp.yaml` 对应分辨率配置。原始结果截图中的数值仅为示例，不能直接作为当前机械臂的标定结果。
+
+![原始手眼标定结果示例](assets/image-2.png)
+
+### 工站配置
 
 - `configs/config_file.yaml` 指向真机配置 `configs/sam_simplegrasp.yaml`。
 - `configs/sam_simplegrasp.yaml` 包含模型、标定、连接、观察与放置位、运动保护参数；使用前按现场重新标定。
