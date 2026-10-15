@@ -65,13 +65,13 @@ Use the keyboard-grasp tab to enter commands. `./run_grasp.sh` launches the same
 
 ### Interface and Workspace References
 
-The original interface screenshot below illustrates camera views and pose information. It is a historical reference, not a screenshot of the current keyboard interface.
+Interface reference: camera views and pose information. The current GUI uses the keyboard-control layout.
 
-![Original grasp interface and pose adjustment reference](assets/image-3.png)
+![Camera views and pose adjustment reference](assets/image-3.png)
 
-The original workspace illustration is shown below. Determine the actual safe working area from your robot, camera mounting, and surrounding obstacles.
+Use the workspace illustration as a reference. Determine the safe working area from your robot, camera mounting, and surrounding obstacles.
 
-![Original grasp workspace illustration](assets/image.png)
+![Grasp workspace reference](assets/image.png)
 
 ## Commands
 
@@ -106,13 +106,13 @@ To reuse an existing environment, set `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/p
 
 ### Hand-Eye Calibration
 
-Recalibrate after changing the camera, mounting position, or image resolution. The original calibration capture example is shown below:
+Recalibrate after changing the camera, mounting position, or image resolution. Calibration capture example:
 
 ![Hand-eye calibration capture example](assets/image-1.png)
 
-Write the measured intrinsics, distortion coefficients, and camera-to-end-effector transform into the matching resolution section of `configs/sam_simplegrasp.yaml`. Values in the original result screenshot are examples, not calibration values for your robot.
+Write the measured intrinsics, distortion coefficients, and camera-to-end-effector transform into the matching resolution section of `configs/sam_simplegrasp.yaml`. The values shown below are examples; measure calibration values for your robot.
 
-![Original hand-eye calibration result example](assets/image-2.png)
+![Hand-eye calibration result example](assets/image-2.png)
 
 ### Workstation Configuration
 
