@@ -65,13 +65,19 @@ Use the keyboard-grasp tab to enter commands. `./run_grasp.sh` launches the same
 
 ### Interface and Workspace References
 
-Interface reference: camera views and pose information. The current GUI uses the keyboard-control layout.
+The current physical GUI places live target detection on the left and the Keyboard Grasp, Manual Fallback, Robot, and Diagnostics tabs on the right. The screenshots below show the actual UI layout in offline preview mode, without a camera or robot connection.
 
-![Camera views and pose adjustment reference](assets/image-3.png)
+![Keyboard grasp interface — offline preview](assets/keyboard-control-ui.png)
 
-Use the workspace illustration as a reference. Determine the safe working area from your robot, camera mounting, and surrounding obstacles.
+The Manual Fallback tab provides image capture, target selection, segmentation, and manual controls.
 
-![Grasp workspace reference](assets/image.png)
+![Manual fallback interface — offline preview](assets/manual-selection-ui.png)
+
+The standalone simulation displays the robot and workspace from a third-person view above the wrist-camera view, with keyboard commands on the right. The screenshot below is captured from the running simulation.
+
+![Standalone simulation and workspace](assets/simulation-workspace-ui.png)
+
+The blue and green blocks are grasp targets; the orange marker is the placement area. Determine the physical robot's safe working area from its camera mounting and surrounding obstacles.
 
 ## Commands
 
@@ -105,6 +111,8 @@ To reuse an existing environment, set `GRASP_KEYBOARD_PYTHON=/path/to/venv/bin/p
 ## Configuration and Safety
 
 ### Hand-Eye Calibration
+
+See the [official camera intrinsic and hand-eye calibration tutorial](https://docs.discover-robotics.com/document/en/airbot-play/tutorials/hand-eye-calibration.html) for calibration-board preparation, eye-in-hand and eye-to-hand procedures, and calibration results. For this demo's arm-sdk 5.2.2 / airbot-arm 5.2.2 environment, start the robot service as described in [Terminal A](#terminal-a-start-the-robot-service).
 
 Recalibrate after changing the camera, mounting position, or image resolution. Calibration capture example:
 
